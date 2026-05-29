@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TodayTab from './components/TodayTab';
 import VsTab from './components/VsTab';
 import RemindTab from './components/RemindTab';
+import ChatTab from './components/ChatTab';
 import { useChallenge } from './hooks/useChallenge';
 import './App.css';
 
@@ -93,6 +94,7 @@ export default function App() {
           { id: 'today', icon: '⚡', label: 'Today' },
           { id: 'vs', icon: '👥', label: `vs ${challenge.otherPlayer.name}` },
           { id: 'remind', icon: '🔔', label: 'Remind' },
+          { id: 'chat', icon: '💬', label: 'Chat' },
         ].map((t) => (
           <button key={t.id} className={`tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
             <span className="tab-icon">{t.icon}</span>
@@ -105,6 +107,7 @@ export default function App() {
         {tab === 'today' && <TodayTab challenge={challenge} playerId={playerId} Avatar={Avatar} />}
         {tab === 'vs' && <VsTab challenge={challenge} Avatar={Avatar} />}
         {tab === 'remind' && <RemindTab challenge={challenge} />}
+        {tab === 'chat' && <ChatTab playerId={playerId} myPlayer={challenge.myPlayer} otherPlayer={challenge.otherPlayer} />}
       </main>
     </div>
   );

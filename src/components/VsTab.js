@@ -51,7 +51,7 @@ export default function VsTab({ challenge, Avatar }) {
     myWeekTotal, otherWeekTotal,
     myBest, otherBest,
     myTotal, otherTotal,
-    myWeekLogs, otherWeekLogs,
+    otherWeekLogs,
     otherTodayLogged, otherTodayReps,
   } = challenge;
 

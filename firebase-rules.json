@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "challenge": {
+      "$player": {
+        ".read": true,
+        ".write": true,
+        "logs": {
+          "$date": {
+            ".validate": "newData.hasChildren(['reps']) && newData.child('reps').isNumber() && newData.child('reps').val() > 0 && newData.child('reps').val() < 10000"
+          }
+        }
+      }
+    }
+  }
+}

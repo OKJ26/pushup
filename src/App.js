@@ -37,7 +37,74 @@ function Avatar({ playerId, size = '', className = '' }) {
   );
 }
 
+const PINS = { jeremy: '1111', grant: '0811' };
+
+function PinEntry({ playerId, playerName, photo, onSuccess, onBack }) {
+  const [pin, setPin] = useState('');
+  const [error, setError] = useState(false);
+
+  const handleDigit = (d) => {
+    if (pin.length >= 4) return;
+    const next = pin + d;
+    setPin(next);
+    setError(false);
+    if (next.length === 4) {
+      const stored = localStorage.getItem(`pin-${playerId}`);
+      const correct = stored || PINS[playerId];
+      if (next === correct) {
+        if (!stored) localStorage.setItem(`pin-${playerId}`, next);
+        setTimeout(() => onSuccess(playerId), 150);
+      } else {
+        setTimeout(() => { setPin(''); setError(true); }, 300);
+      }
+    }
+  };
+
+  const handleDelete = () => setPin(pin.slice(0, -1));
+
+  return (
+    <div className="player-select">
+      <img src="/organic-logo-white.png" alt="Organic" className="org-logo" />
+      <div className="select-header">
+        <img src={photo} alt={playerName} className="avatar" style={{margin: '0 auto 0.75rem'}} />
+        <h1>{playerName}</h1>
+        <p>Enter your PIN</p>
+      </div>
+      <div className="pin-dots">
+        {[0,1,2,3].map(i => (
+          <div key={i} className={`pin-dot ${pin.length > i ? 'filled' : ''} ${error ? 'error' : ''}`} />
+        ))}
+      </div>
+      {error && <div className="pin-error">Wrong PIN, try again</div>}
+      <div className="pin-pad">
+        {['1','2','3','4','5','6','7','8','9','','0','⌫'].map((d, i) => (
+          <button
+            key={i}
+            className={`pin-key ${d === '' ? 'invisible' : ''}`}
+            onClick={() => d === '⌫' ? handleDelete() : d !== '' ? handleDigit(d) : null}
+          >{d}</button>
+        ))}
+      </div>
+      <button className="pin-back-btn" onClick={onBack}>← Back</button>
+    </div>
+  );
+}
+
 function PlayerSelect({ onSelect }) {
+  const [enteringPin, setEnteringPin] = useState(null);
+
+  if (enteringPin) {
+    return (
+      <PinEntry
+        playerId={enteringPin}
+        playerName={enteringPin === 'jeremy' ? 'Jeremy' : 'Grant'}
+        photo={localStorage.getItem(`photo-${enteringPin}`) || DEFAULT_PHOTOS[enteringPin]}
+        onSuccess={onSelect}
+        onBack={() => setEnteringPin(null)}
+      />
+    );
+  }
+
   return (
     <div className="player-select">
       <img src="/organic-logo-white.png" alt="Organic" className="org-logo" />
@@ -46,15 +113,13 @@ function PlayerSelect({ onSelect }) {
         <p>Who are you?</p>
       </div>
       <div className="player-cards">
-        <button className="player-card" onClick={() => onSelect('jeremy')}>
+        <button className="player-card" onClick={() => setEnteringPin('jeremy')}>
           <img src={localStorage.getItem('photo-jeremy') || DEFAULT_PHOTOS.jeremy} alt="Jeremy" className="avatar" />
           <span>Jeremy</span>
-          
         </button>
-        <button className="player-card" onClick={() => onSelect('grant')}>
+        <button className="player-card" onClick={() => setEnteringPin('grant')}>
           <img src={localStorage.getItem('photo-grant') || DEFAULT_PHOTOS.grant} alt="Grant" className="avatar" />
           <span>Grant</span>
-          
         </button>
       </div>
       <img src="/pushup.png" alt="Pushup" className="pushup-illustration" />

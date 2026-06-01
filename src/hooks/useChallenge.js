@@ -26,6 +26,18 @@ export function useChallenge(playerId) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
 
+  const editSet = async (setKey, reps) => {
+    const today = getTodayKey();
+    const { set: fbSet } = await import('firebase/database');
+    await fbSet(ref(db, `challenge/${playerId}/logs/${today}/sets/${setKey}/reps`), reps);
+  };
+
+  const deleteSet = async (setKey) => {
+    const today = getTodayKey();
+    const { remove } = await import('firebase/database');
+    await remove(ref(db, `challenge/${playerId}/logs/${today}/sets/${setKey}`));
+  };
+
   const logSet = async (reps) => {
     const today = getTodayKey();
     await push(ref(db, `challenge/${playerId}/logs/${today}/sets`), {
@@ -142,8 +154,8 @@ export function useChallenge(playerId) {
     const dayLog = logs[todayKey];
     if (!dayLog) return [];
     // Old format - wrap single entry as array
-    if (dayLog.reps && !dayLog.sets) return [{ reps: dayLog.reps }];
-    return Object.values(dayLog.sets || {});
+    if (dayLog.reps && !dayLog.sets) return [{ reps: dayLog.reps, key: 'legacy' }];
+    return Object.entries(dayLog.sets || {}).map(([key, val]) => ({ ...val, key }));
   };
 
   const getTodayTotal = (logs) => {
@@ -171,5 +183,7 @@ export function useChallenge(playerId) {
     otherTodayReps: getTodayTotal(otherLogs),
     otherTodayLogged: hasLoggedDay(otherLogs[todayKey]),
     logSet,
+    editSet,
+    deleteSet,
   };
 }

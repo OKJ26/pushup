@@ -19,13 +19,57 @@ function StreakDots({ weekLogs }) {
   );
 }
 
+function SetRow({ set, index, onEdit, onDelete }) {
+  const [editing, setEditing] = useState(false);
+  const [editVal, setEditVal] = useState(set.reps);
+
+  const handleSave = () => {
+    if (editVal > 0) {
+      onEdit(set.key, editVal);
+      setEditing(false);
+    }
+  };
+
+  if (editing) {
+    return (
+      <div className="set-row editing">
+        <span className="set-num">Set {index + 1}</span>
+        <div className="set-edit-controls">
+          <button className="set-edit-btn" onClick={() => setEditVal(Math.max(1, editVal - 1))}>−</button>
+          <span className="set-edit-val">{editVal}</span>
+          <button className="set-edit-btn" onClick={() => setEditVal(editVal + 1)}>+</button>
+        </div>
+        <div className="set-actions">
+          <button className="set-save-btn" onClick={handleSave}>✓</button>
+          <button className="set-cancel-btn" onClick={() => { setEditing(false); setEditVal(set.reps); }}>✕</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="set-row">
+      <span className="set-num">Set {index + 1}</span>
+      <span className="set-reps">{set.reps} reps</span>
+      <div className="set-actions">
+        {set.key !== 'legacy' && (
+          <>
+            <button className="set-edit-btn icon" onClick={() => setEditing(true)} title="Edit">✏️</button>
+            <button className="set-delete-btn icon" onClick={() => onDelete(set.key)} title="Delete">🗑️</button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function TodayTab({ challenge, playerId, Avatar }) {
   const [reps, setReps] = useState(10);
   const [confirming, setConfirming] = useState(false);
 
   const {
     myPlayer, myStreak, myWeekLogs, todayLogged, todayReps, todaySets,
-    otherPlayer, otherTodayLogged, otherTodayReps, logSet,
+    otherPlayer, otherTodayLogged, otherTodayReps, logSet, editSet, deleteSet,
   } = challenge;
 
   const handleLog = async () => {
@@ -56,14 +100,18 @@ export default function TodayTab({ challenge, playerId, Avatar }) {
         <div className="sets-log">
           <div className="section-label" style={{ marginTop: '1rem' }}>Today's sets</div>
           {todaySets.map((s, i) => (
-            <div key={i} className="set-row">
-              <span className="set-num">Set {i + 1}</span>
-              <span className="set-reps">{s.reps} reps</span>
-            </div>
+            <SetRow
+              key={s.key || i}
+              set={s}
+              index={i}
+              onEdit={editSet}
+              onDelete={deleteSet}
+            />
           ))}
           <div className="set-row total">
             <span className="set-num">Total</span>
             <span className="set-reps">{todayReps} reps</span>
+            <div className="set-actions" />
           </div>
         </div>
       )}

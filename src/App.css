@@ -424,3 +424,19 @@ body {
   display: flex; align-items: center; justify-content: center;
   padding: 0 4px; border: 1.5px solid var(--surface);
 }
+
+/* Set edit/delete */
+.set-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.9rem; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 4px; }
+.set-row.total { background: var(--teal-light); border-color: var(--teal); font-weight: 700; }
+.set-row.editing { background: var(--teal-light); border-color: var(--teal); }
+.set-num { font-size: 13px; color: var(--text2); min-width: 48px; }
+.set-reps { font-size: 14px; font-weight: 700; color: var(--teal-dark); flex: 1; }
+.set-row.total .set-num { color: var(--teal-dark); }
+.set-actions { display: flex; gap: 6px; align-items: center; }
+.set-edit-btn { background: var(--surface2); border: 0.5px solid var(--border); border-radius: 6px; padding: 3px 8px; font-size: 13px; cursor: pointer; color: var(--text); }
+.set-edit-btn.icon { background: none; border: none; font-size: 15px; padding: 2px 4px; }
+.set-delete-btn { background: none; border: none; font-size: 15px; padding: 2px 4px; cursor: pointer; }
+.set-save-btn { background: var(--teal); color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.set-cancel-btn { background: var(--surface2); border: 0.5px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; color: var(--text2); }
+.set-edit-controls { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center; }
+.set-edit-val { font-size: 18px; font-weight: 800; color: var(--teal-dark); min-width: 32px; text-align: center; }

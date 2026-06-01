@@ -20,19 +20,18 @@ function StreakDots({ weekLogs }) {
 }
 
 export default function TodayTab({ challenge, playerId, Avatar }) {
-  const [reps, setReps] = useState(50);
+  const [reps, setReps] = useState(10);
   const [confirming, setConfirming] = useState(false);
 
   const {
-    myPlayer, myStreak, myWeekLogs, todayLogged, todayReps,
+    myPlayer, myStreak, myWeekLogs, todayLogged, todayReps, todaySets,
     otherPlayer, otherTodayLogged, otherTodayReps, logSet,
   } = challenge;
 
   const handleLog = async () => {
-    if (todayLogged) return;
     await logSet(reps);
     setConfirming(true);
-    setTimeout(() => setConfirming(false), 3000);
+    setTimeout(() => setConfirming(false), 2000);
   };
 
   return (
@@ -47,11 +46,27 @@ export default function TodayTab({ challenge, playerId, Avatar }) {
           </div>
         </div>
         <div className="stat-right">
-          <div className="stat-big">{todayLogged ? todayReps : '--'}</div>
+          <div className="stat-big">{todayReps > 0 ? todayReps : '--'}</div>
           <div className="stat-lbl">today</div>
         </div>
       </div>
       <StreakDots weekLogs={myWeekLogs} />
+
+      {todaySets.length > 0 && (
+        <div className="sets-log">
+          <div className="section-label" style={{ marginTop: '1rem' }}>Today's sets</div>
+          {todaySets.map((s, i) => (
+            <div key={i} className="set-row">
+              <span className="set-num">Set {i + 1}</span>
+              <span className="set-reps">{s.reps} reps</span>
+            </div>
+          ))}
+          <div className="set-row total">
+            <span className="set-num">Total</span>
+            <span className="set-reps">{todayReps} reps</span>
+          </div>
+        </div>
+      )}
 
       {otherTodayLogged && !todayLogged && (
         <div className="nudge-bar" style={{ marginTop: '0.75rem' }}>
@@ -59,30 +74,24 @@ export default function TodayTab({ challenge, playerId, Avatar }) {
         </div>
       )}
 
-      <div className="section-label" style={{ marginTop: '1.25rem' }}>Log today's set</div>
+      <div className="section-label" style={{ marginTop: '1.25rem' }}>
+        {todaySets.length > 0 ? 'Log another set' : "Log today's set"}
+      </div>
 
-      {todayLogged ? (
-        <div className="done-card">
-          <div className="done-icon">✓</div>
-          <div className="done-text">Done! {todayReps} reps logged.</div>
-          <div className="done-sub">Streak alive. See you tomorrow.</div>
+      <div className="rep-picker">
+        <span className="rep-label">Pushups</span>
+        <div className="rep-controls">
+          <button className="rep-btn" onClick={() => setReps(Math.max(1, reps - 5))}>−5</button>
+          <button className="rep-btn" onClick={() => setReps(Math.max(1, reps - 1))}>−1</button>
+          <span className="rep-count">{reps}</span>
+          <button className="rep-btn" onClick={() => setReps(reps + 1)}>+1</button>
+          <button className="rep-btn" onClick={() => setReps(reps + 5)}>+5</button>
         </div>
-      ) : (
-        <>
-          <div className="rep-picker">
-            <span className="rep-label">Pushups</span>
-            <div className="rep-controls">
-              <button className="rep-btn" onClick={() => setReps(Math.max(1, reps - 5))}>−5</button>
-              <button className="rep-btn" onClick={() => setReps(Math.max(1, reps - 1))}>−1</button>
-              <span className="rep-count">{reps}</span>
-              <button className="rep-btn" onClick={() => setReps(reps + 1)}>+1</button>
-              <button className="rep-btn" onClick={() => setReps(reps + 5)}>+5</button>
-            </div>
-          </div>
-          <button className="log-btn" onClick={handleLog}>Log set ✓</button>
-          {confirming && <div className="confirm-msg">Logged! Nice work 💪</div>}
-        </>
-      )}
+      </div>
+      <button className="log-btn" onClick={handleLog}>
+        {todaySets.length > 0 ? `Log set ${todaySets.length + 1} ✓` : 'Log set ✓'}
+      </button>
+      {confirming && <div className="confirm-msg">Set logged! 💪 Keep going.</div>}
     </div>
   );
 }

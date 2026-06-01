@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ref, onValue, set, serverTimestamp } from 'firebase/database';
+import { ref, onValue, push, serverTimestamp } from 'firebase/database';
 import { db } from '../firebase';
 
 const PLAYERS = {
@@ -28,7 +28,7 @@ export function useChallenge(playerId) {
 
   const logSet = async (reps) => {
     const today = getTodayKey();
-    await set(ref(db, `challenge/${playerId}/logs/${today}`), {
+    await push(ref(db, `challenge/${playerId}/logs/${today}/sets`), {
       reps,
       timestamp: serverTimestamp(),
     });
@@ -39,7 +39,8 @@ export function useChallenge(playerId) {
     const d = new Date();
     while (true) {
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      if (playerLogs[key]) {
+      const hasSets = Object.keys(playerLogs[key]?.sets || {}).length > 0;
+      if (hasSets) {
         streak++;
         d.setDate(d.getDate() - 1);
       } else {
@@ -62,11 +63,13 @@ export function useChallenge(playerId) {
       const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
       const label = ['M', 'T', 'W', 'T', 'F', 'S', 'S'][i];
       const today = getTodayKey();
+      const sets = Object.values(playerLogs[key]?.sets || {});
+      const dayTotal = sets.reduce((s, x) => s + (x.reps || 0), 0);
       days.push({
         key,
         label,
-        reps: playerLogs[key]?.reps || 0,
-        done: !!playerLogs[key],
+        reps: dayTotal,
+        done: sets.length > 0,
         isToday: key === today,
         isFuture: key > today,
       });
@@ -75,15 +78,25 @@ export function useChallenge(playerId) {
   };
 
   const getWeekTotal = (playerLogs = {}) => {
-    return getWeekLogs(playerLogs).reduce((sum, d) => sum + d.reps, 0);
+    return getWeekLogs(playerLogs).reduce((sum, d) => sum + (d.reps || 0), 0);
   };
 
   const getAllTimeBest = (playerLogs = {}) => {
-    return Math.max(0, ...Object.values(playerLogs).map((l) => l.reps || 0));
+    let best = 0;
+    Object.values(playerLogs).forEach(day => {
+      const sets = Object.values(day?.sets || {});
+      sets.forEach(s => { if ((s.reps || 0) > best) best = s.reps; });
+    });
+    return best;
   };
 
   const getTotalReps = (playerLogs = {}) => {
-    return Object.values(playerLogs).reduce((sum, l) => sum + (l.reps || 0), 0);
+    let total = 0;
+    Object.values(playerLogs).forEach(day => {
+      const sets = Object.values(day?.sets || {});
+      sets.forEach(s => { total += s.reps || 0; });
+    });
+    return total;
   };
 
   const todayKey = getTodayKey();
@@ -91,13 +104,23 @@ export function useChallenge(playerId) {
   const otherPlayer = playerId === 'jeremy' ? 'grant' : 'jeremy';
   const otherLogs = data?.[otherPlayer]?.logs || {};
 
+  const getTodaySets = (logs) => {
+    const sets = logs[todayKey]?.sets || {};
+    return Object.values(sets);
+  };
+
+  const getTodayTotal = (logs) => {
+    return getTodaySets(logs).reduce((sum, s) => sum + (s.reps || 0), 0);
+  };
+
   return {
     loading,
     players: PLAYERS,
     myPlayer: PLAYERS[playerId],
     otherPlayer: PLAYERS[otherPlayer],
-    todayLogged: !!myLogs[todayKey],
-    todayReps: myLogs[todayKey]?.reps || 0,
+    todayLogged: getTodaySets(myLogs).length > 0,
+    todaySets: getTodaySets(myLogs),
+    todayReps: getTodayTotal(myLogs),
     myStreak: getStreak(myLogs),
     otherStreak: getStreak(otherLogs),
     myWeekLogs: getWeekLogs(myLogs),
@@ -108,8 +131,8 @@ export function useChallenge(playerId) {
     otherBest: getAllTimeBest(otherLogs),
     myTotal: getTotalReps(myLogs),
     otherTotal: getTotalReps(otherLogs),
-    otherTodayReps: otherLogs[todayKey]?.reps || 0,
-    otherTodayLogged: !!otherLogs[todayKey],
+    otherTodayReps: getTodayTotal(otherLogs),
+    otherTodayLogged: Object.keys(otherLogs[todayKey]?.sets || {}).length > 0,
     logSet,
   };
 }

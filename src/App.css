@@ -406,3 +406,10 @@ body {
 .set-num { font-size: 13px; color: var(--text2); }
 .set-reps { font-size: 14px; font-weight: 700; color: var(--teal-dark); }
 .set-row.total .set-num { color: var(--teal-dark); }
+
+.notif-success {
+  background: var(--teal-light); color: var(--teal-dark);
+  border-radius: var(--radius-sm); padding: 0.65rem 0.9rem;
+  font-size: 13px; font-weight: 700; margin-bottom: 0.75rem;
+  border-left: 3px solid var(--teal);
+}

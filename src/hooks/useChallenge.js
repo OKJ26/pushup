@@ -32,6 +32,31 @@ export function useChallenge(playerId) {
       reps,
       timestamp: serverTimestamp(),
     });
+
+    // Notify the other player
+    try {
+      const otherPlayer = playerId === 'jeremy' ? 'grant' : 'jeremy';
+      const myName = PLAYERS[playerId].name;
+      const tokenSnap = await new Promise((resolve) => {
+        const tokenRef = require('firebase/database').ref;
+        onValue(tokenRef(db, `fcmTokens/${otherPlayer}`), resolve, { onlyOnce: true });
+      });
+      const token = tokenSnap.val();
+      if (token) {
+        await fetch('/.netlify/functions/send-notification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token,
+            title: 'Morning Pushups 💪',
+            body: `${myName} just logged ${reps} reps!`,
+          }),
+        });
+      }
+    } catch (e) {
+      // Notifications are optional, don't break the app
+      console.log('Notification send failed:', e);
+    }
   };
 
   const getStreak = (playerLogs = {}) => {

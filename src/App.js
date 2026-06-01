@@ -39,7 +39,7 @@ function Avatar({ playerId, size = '', className = '' }) {
   );
 }
 
-const PINS = { jeremy: '1234', grant: '5678' };
+const PINS = { jeremy: '1111', grant: '0811' };
 
 function PinEntry({ playerId, playerName, photo, onSuccess, onBack }) {
   const [pin, setPin] = useState('');

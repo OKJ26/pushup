@@ -413,3 +413,14 @@ body {
   font-size: 13px; font-weight: 700; margin-bottom: 0.75rem;
   border-left: 3px solid var(--teal);
 }
+
+/* Chat unread badge */
+.tab-icon-wrap { position: relative; display: inline-flex; }
+.tab-badge {
+  position: absolute; top: -6px; right: -8px;
+  background: #FF3B30; color: #fff;
+  font-size: 10px; font-weight: 700;
+  min-width: 16px; height: 16px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 4px; border: 1.5px solid var(--surface);
+}

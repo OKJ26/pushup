@@ -4,6 +4,8 @@ import VsTab from './components/VsTab';
 import RemindTab from './components/RemindTab';
 import ChatTab from './components/ChatTab';
 import { useChallenge } from './hooks/useChallenge';
+import { db } from './firebase';
+import { useEffect } from 'react';
 import './App.css';
 
 const DEFAULT_PHOTOS = {
@@ -37,7 +39,7 @@ function Avatar({ playerId, size = '', className = '' }) {
   );
 }
 
-const PINS = { jeremy: '1111', grant: '0811' };
+const PINS = { jeremy: '1234', grant: '5678' };
 
 function PinEntry({ playerId, playerName, photo, onSuccess, onBack }) {
   const [pin, setPin] = useState('');
@@ -132,11 +134,41 @@ export { Avatar, DEFAULT_PHOTOS };
 export default function App() {
   const [playerId, setPlayerId] = useState(() => localStorage.getItem('pushup-player') || null);
   const [tab, setTab] = useState('today');
+  const [unreadChat, setUnreadChat] = useState(0);
+  const [lastSeenChat, setLastSeenChat] = useState(() => parseInt(localStorage.getItem('last-seen-chat') || '0'));
   const challenge = useChallenge(playerId);
+
+  // Track unread chat messages
+  useEffect(() => {
+    if (!playerId) return;
+    import('firebase/database').then(({ ref, onValue }) => {
+      const chatRef = ref(db, 'chat');
+      const unsub = onValue(chatRef, (snapshot) => {
+        const val = snapshot.val() || {};
+        const msgs = Object.values(val);
+        const unread = msgs.filter(m =>
+          m.sender !== playerId &&
+          (m.timestamp || 0) > lastSeenChat
+        ).length;
+        setUnreadChat(unread);
+      });
+      return () => unsub();
+    });
+  }, [playerId, lastSeenChat]);
 
   const handleSelect = (id) => {
     localStorage.setItem('pushup-player', id);
     setPlayerId(id);
+  };
+
+  const handleTabSwitch = (tabId) => {
+    setTab(tabId);
+    if (tabId === 'chat') {
+      const now = Date.now();
+      setLastSeenChat(now);
+      setUnreadChat(0);
+      localStorage.setItem('last-seen-chat', String(now));
+    }
   };
 
   if (!playerId) return <PlayerSelect onSelect={handleSelect} />;
@@ -159,10 +191,13 @@ export default function App() {
           { id: 'today', icon: '⚡', label: 'Today' },
           { id: 'vs', icon: '👥', label: `vs ${challenge.otherPlayer.name}` },
           { id: 'remind', icon: '🔔', label: 'Remind' },
-          { id: 'chat', icon: '💬', label: 'Chat' },
+          { id: 'chat', icon: '💬', label: 'Chat', badge: unreadChat },
         ].map((t) => (
-          <button key={t.id} className={`tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
-            <span className="tab-icon">{t.icon}</span>
+          <button key={t.id} className={`tab ${tab === t.id ? 'active' : ''}`} onClick={() => handleTabSwitch(t.id)}>
+            <span className="tab-icon-wrap">
+              <span className="tab-icon">{t.icon}</span>
+              {t.badge > 0 && <span className="tab-badge">{t.badge}</span>}
+            </span>
             <span>{t.label}</span>
           </button>
         ))}

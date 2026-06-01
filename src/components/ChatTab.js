@@ -90,10 +90,29 @@ export default function ChatTab({ playerId, myPlayer, otherPlayer }) {
             <div key={item.id} className="chat-date-divider">{item.label}</div>
           ) : (
             <div key={item.id} className={`chat-bubble-wrap ${item.sender === playerId ? 'mine' : 'theirs'}`}>
-              <div className={`chat-bubble ${item.sender === playerId ? 'mine' : 'theirs'}`}>
-                <div className="chat-text">{item.text}</div>
-                <div className="chat-time">{formatTime(item.timestamp)}</div>
+              {item.sender !== playerId && (
+                <img
+                  src={localStorage.getItem(`photo-${item.sender}`) || (item.sender === 'jeremy' ? '/jeremy.jpg' : '/grant.jpg')}
+                  alt={item.name}
+                  className="chat-avatar"
+                />
+              )}
+              <div className="chat-bubble-inner">
+                {item.sender !== playerId && (
+                  <div className="chat-sender-name">{item.name}</div>
+                )}
+                <div className={`chat-bubble ${item.sender === playerId ? 'mine' : 'theirs'}`}>
+                  <div className="chat-text">{item.text}</div>
+                  <div className="chat-time">{formatTime(item.timestamp)}</div>
+                </div>
               </div>
+              {item.sender === playerId && (
+                <img
+                  src={localStorage.getItem(`photo-${item.sender}`) || (item.sender === 'jeremy' ? '/jeremy.jpg' : '/grant.jpg')}
+                  alt={item.name}
+                  className="chat-avatar"
+                />
+              )}
             </div>
           )
         )}

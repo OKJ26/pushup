@@ -53,13 +53,22 @@ export default function VsTab({ challenge, Avatar }) {
     myTotal, otherTotal,
     otherWeekLogs,
     otherTodayLogged, otherTodayReps,
+    myLatestBPM, otherLatestBPM,
+    myBreathWork, otherBreathWork,
   } = challenge;
 
   const otherId = myPlayer.name === 'Jeremy' ? 'grant' : 'jeremy';
 
+  const bwScore = (bw) => {
+    if (!bw) return '--';
+    if (bw.morning && bw.night) return '✓✓';
+    if (bw.morning || bw.night) return '✓';
+    return '--';
+  };
+
   return (
     <div className="tab-inner">
-      <div className="section-label">This week</div>
+      <div className="section-label">Pushups — this week</div>
       <WeekBar
         myTotal={myWeekTotal}
         otherTotal={otherWeekTotal}
@@ -87,7 +96,7 @@ export default function VsTab({ challenge, Avatar }) {
         <StatCard label={`${otherPlayer.name}'s total`} value={otherTotal.toLocaleString()} />
       </div>
 
-      <div className="section-label" style={{ marginTop: '0.5rem' }}>{otherPlayer.name}'s week</div>
+      <div className="section-label">{otherPlayer.name}'s week</div>
       <div className="card player-card-row">
         <Avatar playerId={otherId} size="avatar-sm" />
         <div className="player-info">
@@ -101,6 +110,19 @@ export default function VsTab({ challenge, Avatar }) {
           <div className="stat-big">{otherTodayLogged ? otherTodayReps : '--'}</div>
           <div className="stat-lbl">today</div>
         </div>
+      </div>
+
+      <div className="section-label" style={{ marginTop: '0.5rem' }}>Breath Rate (BPM)</div>
+      <div className="stats-grid">
+        <StatCard label="Your BPM" value={myLatestBPM ? myLatestBPM.value : '--'} />
+        <StatCard label={`${otherPlayer.name}'s BPM`} value={otherLatestBPM ? otherLatestBPM.value : '--'} />
+      </div>
+      <div className="bpm-goal-note">Target: 4-6 BPM. Lower = better vagus nerve tone.</div>
+
+      <div className="section-label" style={{ marginTop: '0.75rem' }}>Breath Work Today</div>
+      <div className="stats-grid">
+        <StatCard label="Your sessions" value={bwScore(myBreathWork)} />
+        <StatCard label={`${otherPlayer.name}'s sessions`} value={bwScore(otherBreathWork)} />
       </div>
     </div>
   );

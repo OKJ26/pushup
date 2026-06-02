@@ -440,3 +440,68 @@ body {
 .set-cancel-btn { background: var(--surface2); border: 0.5px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; color: var(--text2); }
 .set-edit-controls { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center; }
 .set-edit-val { font-size: 18px; font-weight: 800; color: var(--teal-dark); min-width: 32px; text-align: center; }
+
+/* Breath Work */
+.breathwork-section { margin-top: 0.5rem; }
+.bw-description {
+  font-size: 13px; color: var(--text2); margin-bottom: 0.75rem;
+  padding: 0.6rem 0.9rem; background: var(--teal-light);
+  border-radius: var(--radius-sm); border-left: 3px solid var(--teal);
+}
+.bw-checks { display: flex; gap: 10px; margin-bottom: 0.5rem; }
+.bw-check-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 0.75rem; border-radius: var(--radius);
+  background: var(--surface); border: 1.5px solid var(--border);
+  font-size: 14px; font-weight: 600; color: var(--text2); cursor: pointer;
+  transition: all 0.15s;
+}
+.bw-check-btn.done {
+  background: var(--teal); border-color: var(--teal-dark); color: #fff;
+}
+.bw-check-icon { font-size: 18px; }
+
+/* BPM */
+.bpm-latest {
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: var(--radius); padding: 0.9rem 1.1rem; margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.bpm-val-wrap { text-align: center; }
+.bpm-val { font-size: 36px; font-weight: 800; color: var(--teal-dark); }
+.bpm-unit { font-size: 13px; color: var(--text3); margin-left: 4px; }
+.bpm-goal { font-size: 13px; color: var(--text2); flex: 1; }
+.bpm-goal-note { font-size: 12px; color: var(--text3); text-align: center; margin-bottom: 0.75rem; }
+
+.bw-timer-btn {
+  width: 100%; padding: 0.8rem; border-radius: var(--radius);
+  background: var(--surface); border: 1.5px solid var(--teal);
+  color: var(--teal-dark); font-size: 14px; font-weight: 600;
+  cursor: pointer; margin-bottom: 0.75rem;
+}
+
+/* Timer */
+.bpm-timer { text-align: center; margin-bottom: 0.75rem; }
+.timer-circle-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto 0.75rem; }
+.timer-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.timer-track { fill: none; stroke: var(--surface2); stroke-width: 8; }
+.timer-progress { fill: none; stroke: var(--teal); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.timer-label {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 28px; font-weight: 800; color: var(--teal-dark);
+}
+.timer-unit { font-size: 14px; font-weight: 500; }
+.timer-hint { font-size: 13px; color: var(--text2); margin-bottom: 0.5rem; }
+.bpm-done-msg { font-size: 13px; color: var(--teal-dark); font-weight: 600; margin-bottom: 0.5rem; }
+
+.bpm-input-row { display: flex; gap: 10px; margin-bottom: 0.5rem; }
+.bpm-input {
+  flex: 1; padding: 0.7rem 1rem; border-radius: var(--radius);
+  border: 0.5px solid var(--border); background: var(--surface2);
+  font-size: 18px; font-weight: 700; color: var(--text); text-align: center;
+}
+.bpm-save-btn {
+  padding: 0.7rem 1.25rem; border-radius: var(--radius);
+  background: var(--teal); color: #fff; border: none;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+}

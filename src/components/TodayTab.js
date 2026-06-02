@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import BreathWork from './BreathWork';
 
 function StreakDots({ weekLogs }) {
   return (
@@ -140,6 +141,8 @@ export default function TodayTab({ challenge, playerId, Avatar }) {
         {todaySets.length > 0 ? `Log set ${todaySets.length + 1} ✓` : 'Log set ✓'}
       </button>
       {confirming && <div className="confirm-msg">Set logged! 💪 Keep going.</div>}
+
+      <BreathWork challenge={challenge} playerId={playerId} />
     </div>
   );
 }

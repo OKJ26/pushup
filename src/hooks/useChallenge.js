@@ -162,6 +162,39 @@ export function useChallenge(playerId) {
     return getTodaySets(logs).reduce((sum, s) => sum + (s.reps || 0), 0);
   };
 
+  const logBreathWork = async (session) => {
+    // session = 'morning' or 'night'
+    const today = getTodayKey();
+    const { set: fbSet } = await import('firebase/database');
+    await fbSet(ref(db, `challenge/${playerId}/breathwork/${today}/${session}`), true);
+  };
+
+  const logBPM = async (bpm) => {
+    const today = getTodayKey();
+    const { set: fbSet } = await import('firebase/database');
+    await fbSet(ref(db, `challenge/${playerId}/bpm/${today}`), bpm);
+  };
+
+  const getTodayBreathWork = (player) => {
+    const today = getTodayKey();
+    const bw = data?.[player]?.breathwork?.[today] || {};
+    return { morning: !!bw.morning, night: !!bw.night };
+  };
+
+  const getLatestBPM = (player) => {
+    const bpmData = data?.[player]?.bpm || {};
+    const keys = Object.keys(bpmData).sort();
+    if (keys.length === 0) return null;
+    return { date: keys[keys.length - 1], value: bpmData[keys[keys.length - 1]] };
+  };
+
+  const getBPMHistory = (player) => {
+    const bpmData = data?.[player]?.bpm || {};
+    return Object.entries(bpmData)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, value]) => ({ date, value }));
+  };
+
   return {
     loading,
     players: PLAYERS,
@@ -185,5 +218,13 @@ export function useChallenge(playerId) {
     logSet,
     editSet,
     deleteSet,
+    logBreathWork,
+    logBPM,
+    myBreathWork: getTodayBreathWork(playerId),
+    otherBreathWork: getTodayBreathWork(playerId === 'jeremy' ? 'grant' : 'jeremy'),
+    myLatestBPM: getLatestBPM(playerId),
+    otherLatestBPM: getLatestBPM(playerId === 'jeremy' ? 'grant' : 'jeremy'),
+    myBPMHistory: getBPMHistory(playerId),
+    otherBPMHistory: getBPMHistory(playerId === 'jeremy' ? 'grant' : 'jeremy'),
   };
 }

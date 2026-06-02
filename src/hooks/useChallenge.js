@@ -162,11 +162,11 @@ export function useChallenge(playerId) {
     return getTodaySets(logs).reduce((sum, s) => sum + (s.reps || 0), 0);
   };
 
-  const logBreathWork = async (session) => {
-    // session = 'morning' or 'night'
+  const logBreathWork = async (session, value) => {
+    // session = 'morning' or 'night', value = true/false
     const today = getTodayKey();
     const { set: fbSet } = await import('firebase/database');
-    await fbSet(ref(db, `challenge/${playerId}/breathwork/${today}/${session}`), true);
+    await fbSet(ref(db, `challenge/${playerId}/breathwork/${today}/${session}`), value);
   };
 
   const logBPM = async (bpm) => {

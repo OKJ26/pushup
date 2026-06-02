@@ -68,10 +68,10 @@ export default function BreathWork({ challenge, playerId }) {
   const [showTimer, setShowTimer] = useState(false);
   const [bpmSaved, setBpmSaved] = useState(false);
 
-  const isMonday = new Date().getDay() === 1;
+  // BPM available any day
 
   const handleCheck = async (session) => {
-    await logBreathWork(session);
+    await logBreathWork(session, !myBreathWork[session]);
   };
 
   const handleSaveBPM = async () => {
@@ -109,7 +109,7 @@ export default function BreathWork({ challenge, playerId }) {
       </div>
 
       <div className="section-label" style={{ marginTop: '1.25rem' }}>
-        Breath Rate {isMonday ? '— measure today!' : '(measure Mondays)'}
+        Breath Rate (BPM)
       </div>
 
       {myLatestBPM && (
@@ -128,30 +128,26 @@ export default function BreathWork({ challenge, playerId }) {
         </div>
       )}
 
-      {isMonday && (
-        <>
-          {!showTimer ? (
-            <button className="bw-timer-btn" onClick={() => setShowTimer(true)}>
-              🕐 Use 60s timer to measure
-            </button>
-          ) : (
-            <Timer />
-          )}
-          <div className="bpm-input-row">
-            <input
-              type="number"
-              className="bpm-input"
-              placeholder="Enter BPM"
-              value={bpmInput}
-              onChange={e => setBpmInput(e.target.value)}
-              min="1"
-              max="60"
-            />
-            <button className="bpm-save-btn" onClick={handleSaveBPM}>Save</button>
-          </div>
-          {bpmSaved && <div className="confirm-msg">BPM saved! 🌬️</div>}
-        </>
+      {!showTimer ? (
+        <button className="bw-timer-btn" onClick={() => setShowTimer(true)}>
+          🕐 Use 60s timer to measure
+        </button>
+      ) : (
+        <Timer />
       )}
+      <div className="bpm-input-row">
+        <input
+          type="number"
+          className="bpm-input"
+          placeholder="Enter BPM"
+          value={bpmInput}
+          onChange={e => setBpmInput(e.target.value)}
+          min="1"
+          max="60"
+        />
+        <button className="bpm-save-btn" onClick={handleSaveBPM}>Save</button>
+      </div>
+      {bpmSaved && <div className="confirm-msg">BPM saved! 🌬️</div>}
     </div>
   );
 }

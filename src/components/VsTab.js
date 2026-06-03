@@ -57,7 +57,7 @@ export default function VsTab({ challenge, Avatar }) {
     myBreathWork, otherBreathWork,
   } = challenge;
 
-  const otherId = myPlayer.name === 'Jeremy' ? 'grant' : 'jeremy';
+  const otherId = myPlayer.name === 'Jeremy' ? 'grant' : myPlayer.name === 'Grant' ? 'jeremy' : 'jeremy';
 
   const bwScore = (bw) => {
     if (!bw) return '--';

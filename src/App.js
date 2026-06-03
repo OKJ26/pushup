@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { ref, onValue } from 'firebase/database';
+import { db } from './firebase';
 import TodayTab from './components/TodayTab';
 import VsTab from './components/VsTab';
 import RemindTab from './components/RemindTab';
 import ChatTab from './components/ChatTab';
 import { useChallenge } from './hooks/useChallenge';
-import { db } from './firebase';
-import { useEffect } from 'react';
 import './App.css';
 
 const DEFAULT_PHOTOS = {
   jeremy: '/jeremy.jpg',
   grant: '/grant.jpg',
+  henry: '/henry.jpg',
 };
+
+const PINS = { jeremy: '1234', grant: '5678' };
 
 function Avatar({ playerId, size = '', className = '' }) {
   const [custom, setCustom] = useState(() => localStorage.getItem(`photo-${playerId}`) || null);
@@ -38,8 +41,6 @@ function Avatar({ playerId, size = '', className = '' }) {
     </div>
   );
 }
-
-const PINS = { jeremy: '1111', grant: '0811' };
 
 function PinEntry({ playerId, playerName, photo, onSuccess, onBack }) {
   const [pin, setPin] = useState('');
@@ -68,12 +69,12 @@ function PinEntry({ playerId, playerName, photo, onSuccess, onBack }) {
     <div className="player-select">
       <img src="/organic-logo-white.png" alt="Organic" className="org-logo" />
       <div className="select-header">
-        <img src={photo} alt={playerName} className="avatar" style={{margin: '0 auto 0.75rem'}} />
+        <img src={photo} alt={playerName} className="avatar" style={{ margin: '0 auto 0.75rem' }} />
         <h1>{playerName}</h1>
         <p>Enter your PIN</p>
       </div>
       <div className="pin-dots">
-        {[0,1,2,3].map(i => (
+        {[0, 1, 2, 3].map(i => (
           <div key={i} className={`pin-dot ${pin.length > i ? 'filled' : ''} ${error ? 'error' : ''}`} />
         ))}
       </div>
@@ -99,7 +100,7 @@ function PlayerSelect({ onSelect }) {
     return (
       <PinEntry
         playerId={enteringPin}
-        playerName={enteringPin === 'jeremy' ? 'Jeremy' : 'Grant'}
+        playerName={enteringPin === 'jeremy' ? 'Jeremy' : enteringPin === 'grant' ? 'Grant' : 'Henry'}
         photo={localStorage.getItem(`photo-${enteringPin}`) || DEFAULT_PHOTOS[enteringPin]}
         onSuccess={onSelect}
         onBack={() => setEnteringPin(null)}
@@ -123,6 +124,10 @@ function PlayerSelect({ onSelect }) {
           <img src={localStorage.getItem('photo-grant') || DEFAULT_PHOTOS.grant} alt="Grant" className="avatar" />
           <span>Grant</span>
         </button>
+        <button className="player-card" onClick={() => setEnteringPin('henry')}>
+          <img src={localStorage.getItem('photo-henry') || DEFAULT_PHOTOS.henry} alt="Henry" className="avatar" />
+          <span>Henry</span>
+        </button>
       </div>
       <img src="/pushup.png" alt="Pushup" className="pushup-illustration" />
     </div>
@@ -135,44 +140,46 @@ export default function App() {
   const [playerId, setPlayerId] = useState(() => localStorage.getItem('pushup-player') || null);
   const [tab, setTab] = useState('today');
   const [unreadChat, setUnreadChat] = useState(0);
-  const [lastSeenChat, setLastSeenChat] = useState(() => parseInt(localStorage.getItem('last-seen-chat') || '0'));
+  const [lastSeen, setLastSeen] = useState(() => parseInt(localStorage.getItem('last-seen-chat') || '0'));
   const challenge = useChallenge(playerId);
 
-  // Track unread chat messages
   useEffect(() => {
     if (!playerId) return;
-    import('firebase/database').then(({ ref, onValue }) => {
-      const chatRef = ref(db, 'chat');
-      const unsub = onValue(chatRef, (snapshot) => {
-        const val = snapshot.val() || {};
-        const msgs = Object.values(val);
-        const unread = msgs.filter(m =>
-          m.sender !== playerId &&
-          (m.timestamp || 0) > lastSeenChat
-        ).length;
-        setUnreadChat(unread);
-      });
-      return () => unsub();
+    const chatRef = ref(db, 'chat');
+    const unsub = onValue(chatRef, (snapshot) => {
+      const val = snapshot.val() || {};
+      const count = Object.values(val).filter(
+        m => m.sender !== playerId && (m.timestamp || 0) > lastSeen
+      ).length;
+      setUnreadChat(count);
     });
-  }, [playerId, lastSeenChat]);
+    return () => unsub();
+  }, [playerId, lastSeen]);
 
   const handleSelect = (id) => {
     localStorage.setItem('pushup-player', id);
     setPlayerId(id);
   };
 
-  const handleTabSwitch = (tabId) => {
-    setTab(tabId);
-    if (tabId === 'chat') {
+  const handleTab = (t) => {
+    setTab(t);
+    if (t === 'chat') {
       const now = Date.now();
-      setLastSeenChat(now);
-      setUnreadChat(0);
       localStorage.setItem('last-seen-chat', String(now));
+      setLastSeen(now);
+      setUnreadChat(0);
     }
   };
 
   if (!playerId) return <PlayerSelect onSelect={handleSelect} />;
   if (challenge.loading) return <div className="loading"><div className="spinner" /></div>;
+
+  const tabs = [
+    { id: 'today', icon: '⚡', label: 'Today' },
+    { id: 'vs', icon: '👥', label: `vs ${challenge.otherPlayer.name}` },
+    { id: 'remind', icon: '🔔', label: 'Remind' },
+    { id: 'chat', icon: '💬', label: 'Chat', badge: unreadChat },
+  ];
 
   return (
     <div className="app">
@@ -187,13 +194,8 @@ export default function App() {
       </header>
 
       <nav className="tabs">
-        {[
-          { id: 'today', icon: '⚡', label: 'Today' },
-          { id: 'vs', icon: '👥', label: `vs ${challenge.otherPlayer.name}` },
-          { id: 'remind', icon: '🔔', label: 'Remind' },
-          { id: 'chat', icon: '💬', label: 'Chat', badge: unreadChat },
-        ].map((t) => (
-          <button key={t.id} className={`tab ${tab === t.id ? 'active' : ''}`} onClick={() => handleTabSwitch(t.id)}>
+        {tabs.map((t) => (
+          <button key={t.id} className={`tab ${tab === t.id ? 'active' : ''}`} onClick={() => handleTab(t.id)}>
             <span className="tab-icon-wrap">
               <span className="tab-icon">{t.icon}</span>
               {t.badge > 0 && <span className="tab-badge">{t.badge}</span>}

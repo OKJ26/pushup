@@ -5,6 +5,7 @@ import { db } from '../firebase';
 const PLAYERS = {
   jeremy: { name: 'Jeremy', initials: 'JE', color: 'blue' },
   grant: { name: 'Grant', initials: 'GR', color: 'coral' },
+  henry: { name: 'Henry', initials: 'HE', color: 'blue' },
 };
 
 export function useChallenge(playerId) {
@@ -47,7 +48,12 @@ export function useChallenge(playerId) {
 
     // Notify the other player
     try {
-      const otherPlayer = playerId === 'jeremy' ? 'grant' : 'jeremy';
+      const getOtherPlayer = () => {
+    if (playerId === 'jeremy') return 'grant';
+    if (playerId === 'grant') return 'jeremy';
+    return 'jeremy'; // henry vs jeremy
+  };
+  const otherPlayer = getOtherPlayer();
       const myName = PLAYERS[playerId].name;
       const tokenSnap = await new Promise((resolve) => {
         const tokenRef = require('firebase/database').ref;
@@ -147,7 +153,12 @@ export function useChallenge(playerId) {
 
   const todayKey = getTodayKey();
   const myLogs = data?.[playerId]?.logs || {};
-  const otherPlayer = playerId === 'jeremy' ? 'grant' : 'jeremy';
+  const getOtherPlayer = () => {
+    if (playerId === 'jeremy') return 'grant';
+    if (playerId === 'grant') return 'jeremy';
+    return 'jeremy'; // henry vs jeremy
+  };
+  const otherPlayer = getOtherPlayer();
   const otherLogs = data?.[otherPlayer]?.logs || {};
 
   const getTodaySets = (logs) => {

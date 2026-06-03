@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import BreathWork from './BreathWork';
 import DayDetail from './DayDetail';
+import StoriesBar from './Stories';
 
 function StreakDots({ weekLogs, onDayTap }) {
   return (
@@ -89,6 +90,7 @@ export default function TodayTab({ challenge, playerId, Avatar }) {
 
   return (
     <div className="tab-inner">
+      <StoriesBar playerId={playerId} />
       <div className="section-label">Your streak this week</div>
       <div className="card player-card-row">
         <Avatar playerId={playerId} size="avatar-sm" />

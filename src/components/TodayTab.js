@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import BreathWork from './BreathWork';
+import DayDetail from './DayDetail';
 
-function StreakDots({ weekLogs }) {
+function StreakDots({ weekLogs, onDayTap }) {
   return (
     <div className="streak-dots">
       {weekLogs.map((day) => {
@@ -10,8 +11,14 @@ function StreakDots({ weekLogs }) {
         else if (day.done) cls += ' done';
         else if (day.isToday) cls += ' today';
         else cls += ' miss';
+        const tappable = !day.isFuture;
         return (
-          <div key={day.key} className={cls} title={day.reps ? `${day.reps} reps` : day.label}>
+          <div
+            key={day.key}
+            className={cls + (tappable ? ' tappable' : '')}
+            title={day.reps ? `${day.reps} reps` : day.label}
+            onClick={() => tappable && onDayTap(day)}
+          >
             {day.label}
           </div>
         );
@@ -67,6 +74,7 @@ function SetRow({ set, index, onEdit, onDelete }) {
 export default function TodayTab({ challenge, playerId, Avatar }) {
   const [reps, setReps] = useState(10);
   const [confirming, setConfirming] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(null);
 
   const {
     myPlayer, myStreak, myWeekLogs, todayLogged, todayReps, todaySets,
@@ -95,7 +103,7 @@ export default function TodayTab({ challenge, playerId, Avatar }) {
           <div className="stat-lbl">today</div>
         </div>
       </div>
-      <StreakDots weekLogs={myWeekLogs} />
+      <StreakDots weekLogs={myWeekLogs} onDayTap={setSelectedDay} />
 
       {todaySets.length > 0 && (
         <div className="sets-log">
@@ -143,6 +151,10 @@ export default function TodayTab({ challenge, playerId, Avatar }) {
       {confirming && <div className="confirm-msg">Set logged! 💪 Keep going.</div>}
 
       <BreathWork challenge={challenge} playerId={playerId} />
+
+      {selectedDay && (
+        <DayDetail day={selectedDay} onClose={() => setSelectedDay(null)} />
+      )}
     </div>
   );
 }

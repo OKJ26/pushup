@@ -92,7 +92,7 @@ export default function ChatTab({ playerId, myPlayer, otherPlayer }) {
             <div key={item.id} className={`chat-bubble-wrap ${item.sender === playerId ? 'mine' : 'theirs'}`}>
               {item.sender !== playerId && (
                 <img
-                  src={localStorage.getItem(`photo-${item.sender}`) || (item.sender === 'jeremy' ? '/jeremy.jpg' : '/grant.jpg')}
+                  src={localStorage.getItem(`photo-${item.sender}`) || `/${item.sender}.jpg`}
                   alt={item.name}
                   className="chat-avatar"
                 />
@@ -108,7 +108,7 @@ export default function ChatTab({ playerId, myPlayer, otherPlayer }) {
               </div>
               {item.sender === playerId && (
                 <img
-                  src={localStorage.getItem(`photo-${item.sender}`) || (item.sender === 'jeremy' ? '/jeremy.jpg' : '/grant.jpg')}
+                  src={localStorage.getItem(`photo-${item.sender}`) || `/${item.sender}.jpg`}
                   alt={item.name}
                   className="chat-avatar"
                 />

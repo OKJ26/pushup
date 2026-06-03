@@ -122,11 +122,17 @@ export function useChallenge(playerId) {
       const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
       const label = ['M', 'T', 'W', 'T', 'F', 'S', 'S'][i];
       const today = getTodayKey();
+      const dayLog = playerLogs[key];
+      const daySets = dayLog?.sets
+        ? Object.values(dayLog.sets)
+        : dayLog?.reps ? [{ reps: dayLog.reps }] : [];
       days.push({
         key,
         label,
-        reps: getDayTotal(playerLogs[key]),
-        done: hasLoggedDay(playerLogs[key]),
+        reps: getDayTotal(dayLog),
+        sets: daySets,
+        breathwork: data?.[playerId]?.breathwork?.[key] || {},
+        done: hasLoggedDay(dayLog),
         isToday: key === today,
         isFuture: key > today,
       });

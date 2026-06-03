@@ -14,7 +14,7 @@ const DEFAULT_PHOTOS = {
   henry: '/henry.jpg',
 };
 
-const PINS = { jeremy: '1111', grant: '0811', henry: '1212' };
+const PINS = { jeremy: '1234', grant: '5678' };
 
 function Avatar({ playerId, size = '', className = '' }) {
   const [custom, setCustom] = useState(() => localStorage.getItem(`photo-${playerId}`) || null);
@@ -176,7 +176,7 @@ export default function App() {
 
   const tabs = [
     { id: 'today', icon: '⚡', label: 'Today' },
-    { id: 'vs', icon: '👥', label: `vs ${challenge.otherPlayer.name}` },
+    { id: 'vs', icon: '👥', label: 'Versus' },
     { id: 'remind', icon: '🔔', label: 'Remind' },
     { id: 'chat', icon: '💬', label: 'Chat', badge: unreadChat },
   ];

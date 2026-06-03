@@ -508,3 +508,28 @@ body {
   background: var(--teal); color: #fff; border: none;
   font-size: 15px; font-weight: 700; cursor: pointer;
 }
+
+/* 3-way leaderboard */
+.lb-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: var(--radius); padding: 0.85rem 1rem; margin-bottom: 8px;
+}
+.lb-row.lb-me { border-color: var(--teal); background: var(--teal-light); }
+.lb-rank { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
+.lb-info { flex: 1; }
+.lb-name { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+.lb-bar-wrap { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.lb-bar { height: 100%; background: linear-gradient(90deg, var(--teal), var(--blue)); border-radius: 3px; transition: width 0.5s ease; }
+.lb-stats { text-align: right; flex-shrink: 0; }
+.lb-week { font-size: 22px; font-weight: 800; color: var(--teal-dark); }
+
+.lb-today-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 0.75rem; }
+.lb-today-card {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: var(--radius); padding: 0.75rem 0.5rem;
+}
+.lb-today-card.done { background: var(--teal-light); border-color: var(--teal); }
+.lb-today-name { font-size: 12px; font-weight: 600; color: var(--text2); }
+.lb-today-reps { font-size: 22px; font-weight: 800; color: var(--teal-dark); }

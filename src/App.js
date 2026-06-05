@@ -14,7 +14,7 @@ const DEFAULT_PHOTOS = {
   henry: '/henry.jpg',
 };
 
-const PINS = { jeremy: '1234', grant: '5678' };
+const PINS = { jeremy: '1111', grant: '0811', henry: '1212' };
 
 function Avatar({ playerId, size = '', className = '' }) {
   const [custom, setCustom] = useState(() => localStorage.getItem(`photo-${playerId}`) || null);

@@ -14,10 +14,8 @@ if ('serviceWorker' in navigator) {
       if (banner) banner.classList.add('visible');
     };
 
-    // If there's already a waiting worker on load, show banner immediately
-    if (reg.waiting) {
-      showBanner();
-    }
+    // Show banner if a new SW is already waiting on load
+    if (reg.waiting) showBanner();
 
     reg.addEventListener('updatefound', () => {
       const newSW = reg.installing;
@@ -30,12 +28,9 @@ if ('serviceWorker' in navigator) {
 
   }).catch(err => console.log('SW failed:', err));
 
-  // When controller changes (new SW took over), reload
+  // Reload when new SW takes control
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) {
-      refreshing = true;
-      window.location.reload();
-    }
+    if (!refreshing) { refreshing = true; window.location.reload(); }
   });
 }

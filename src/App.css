@@ -700,7 +700,7 @@ body {
 }
 .story-post-btn:disabled { opacity: 0.6; }
 
-/* Update banner - hidden until new SW detected */
+/* Update banner */
 .update-banner {
   display: none;
   background: linear-gradient(135deg, var(--teal), var(--blue));

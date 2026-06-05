@@ -6,27 +6,16 @@ import App from './App';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<React.StrictMode><App /></React.StrictMode>);
 
-// Register service worker with update detection
+// SW - same pattern as Squids app
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(reg => {
-      // Check for updates every 60 seconds
-      setInterval(() => reg.update(), 60000);
-
-      reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // New version available - notify the app
-            window.dispatchEvent(new CustomEvent('swUpdateAvailable', { detail: reg }));
-          }
-        });
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const newSW = reg.installing;
+      newSW.addEventListener('statechange', () => {
+        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+          document.getElementById('update-banner').classList.add('visible');
+        }
       });
-    }).catch(err => console.log('SW registration failed:', err));
-
-    // When new SW activates, reload
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      window.location.reload();
     });
   });
 }

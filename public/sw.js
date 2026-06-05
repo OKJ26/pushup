@@ -1,13 +1,17 @@
-const CACHE = 'pushup-v5';
+const CACHE = 'pushup-v6';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-  // Don't skipWaiting - wait for user to confirm update
+// Install: cache assets and skip waiting immediately
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE).then(cache => cache.addAll(ASSETS))
+  );
+  self.skipWaiting();
 });
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
+// Activate: delete old caches
+self.addEventListener('activate', event => {
+  event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
     )
@@ -15,23 +19,25 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-  if (!e.request.url.startsWith(self.location.origin)) return;
-  e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
-      if (res && res.status === 200) {
-        const clone = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
-      }
-      return res;
-    }))
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  if (!event.request.url.startsWith(self.location.origin)) return;
+  event.respondWith(
+    caches.match(event.request).then(cached =>
+      cached || fetch(event.request).then(res => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(event.request, clone));
+        }
+        return res;
+      })
+    )
   );
 });
 
-self.addEventListener('push', (e) => {
-  const data = e.data?.json() || {};
-  e.waitUntil(
+self.addEventListener('push', event => {
+  const data = event.data?.json() || {};
+  event.waitUntil(
     self.registration.showNotification(data.title || 'Morning Pushups 💪', {
       body: data.body || 'Time for your pushups!',
       icon: '/icon-192.png',
@@ -42,12 +48,7 @@ self.addEventListener('push', (e) => {
   );
 });
 
-self.addEventListener('notificationclick', (e) => {
-  e.notification.close();
-  e.waitUntil(clients.openWindow(e.notification.data?.url || '/'));
-});
-
-// Tell clients when a new version is waiting
-self.addEventListener('message', (e) => {
-  if (e.data === 'SKIP_WAITING') self.skipWaiting();
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(clients.openWindow(event.notification.data?.url || '/'));
 });

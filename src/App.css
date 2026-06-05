@@ -700,13 +700,15 @@ body {
 }
 .story-post-btn:disabled { opacity: 0.6; }
 
-/* Update banner */
+/* Update banner - hidden until new SW detected */
 .update-banner {
+  display: none;
   background: linear-gradient(135deg, var(--teal), var(--blue));
   color: #fff; text-align: center; padding: 0.65rem 1rem;
   font-size: 13px; font-weight: 700; cursor: pointer;
-  letter-spacing: 0.01em; position: sticky; top: 88px; z-index: 98;
+  letter-spacing: 0.01em; width: 100%;
 }
+.update-banner.visible { display: block; }
 .update-banner:hover { opacity: 0.95; }
 
 /* Chat edit and context menu */

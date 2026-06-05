@@ -52,10 +52,9 @@ function PinEntry({ playerId, playerName, photo, onSuccess, onBack }) {
     setPin(next);
     setError(false);
     if (next.length === 4) {
-      const stored = localStorage.getItem(`pin-${playerId}`);
-      const correct = stored || PINS[playerId];
+      // Always use the code PIN - no localStorage caching
+      const correct = PINS[playerId];
       if (next === correct) {
-        if (!stored) localStorage.setItem(`pin-${playerId}`, next);
         setTimeout(() => onSuccess(playerId), 150);
       } else {
         setTimeout(() => { setPin(''); setError(true); }, 300);

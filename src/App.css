@@ -703,13 +703,14 @@ body {
 /* Update banner */
 .update-banner {
   display: none;
-  background: linear-gradient(135deg, var(--teal), var(--blue));
-  color: #fff; text-align: center; padding: 0.65rem 1rem;
+  background: #F5C842;
+  color: #1A1000;
+  text-align: center; padding: 0.65rem 1rem;
   font-size: 13px; font-weight: 700; cursor: pointer;
   letter-spacing: 0.01em; width: 100%;
 }
-.update-banner.visible { display: block; }
-.update-banner:hover { opacity: 0.95; }
+.update-banner.visible { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.update-banner:hover { background: #E8BA30; }
 
 /* Chat edit and context menu */
 .chat-menu-overlay { position: fixed; inset: 0; z-index: 150; }

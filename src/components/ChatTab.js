@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ref, push, onValue, serverTimestamp, set, remove } from 'firebase/database';
-import { db } from '../firebase';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase';
 
 export default function ChatTab({ playerId, myPlayer, otherPlayer }) {
   const [messages, setMessages] = useState([]);
@@ -8,7 +9,9 @@ export default function ChatTab({ playerId, myPlayer, otherPlayer }) {
   const [sending, setSending] = useState(false);
   const [editing, setEditing] = useState(null); // { id, text }
   const [longPressTimer, setLongPressTimer] = useState(null);
-  const [menuFor, setMenuFor] = useState(null); // message id showing menu
+  const [menuFor, setMenuFor] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageInputRef = useRef(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -27,6 +30,49 @@ export default function ChatTab({ playerId, myPlayer, otherPlayer }) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const compressImage = (file) => new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 1200;
+      let w = img.width, h = img.height;
+      if (w > h && w > MAX) { h = h * MAX / w; w = MAX; }
+      else if (h > MAX) { w = w * MAX / h; h = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(resolve, 'image/jpeg', 0.85);
+    };
+    img.src = URL.createObjectURL(file);
+  });
+
+  const sendImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    setUploadingImage(true);
+    try {
+      const compressed = await compressImage(file);
+      if (compressed.size > 1024 * 1024) {
+        alert('Image is too large. Please choose a smaller image.');
+        setUploadingImage(false);
+        return;
+      }
+      const path = `chat-images/${playerId}/${Date.now()}.jpg`;
+      const sRef = storageRef(storage, path);
+      await uploadBytes(sRef, compressed);
+      const url = await getDownloadURL(sRef);
+      await push(ref(db, 'chat'), {
+        imageUrl: url,
+        sender: playerId,
+        name: myPlayer.name,
+        timestamp: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error('Image upload failed:', err);
+    }
+    setUploadingImage(false);
+    e.target.value = '';
+  };
 
   const sendMessage = async () => {
     const text = input.trim();
@@ -150,7 +196,11 @@ export default function ChatTab({ playerId, myPlayer, otherPlayer }) {
                     </div>
                   ) : (
                     <>
+                      {item.imageUrl ? (
+                      <img src={item.imageUrl} alt="shared" className="chat-image" onClick={() => window.open(item.imageUrl, '_blank')} />
+                    ) : (
                       <div className="chat-text">{item.text}{item.edited && <span className="chat-edited"> (edited)</span>}</div>
+                    )}
                       <div className="chat-time">{formatTime(item.timestamp)}</div>
                     </>
                   )}
@@ -175,6 +225,10 @@ export default function ChatTab({ playerId, myPlayer, otherPlayer }) {
       </div>
 
       <div className="chat-input-bar">
+        <label className="chat-img-btn" title="Send image">
+          {uploadingImage ? '⏳' : '📷'}
+          <input ref={imageInputRef} type="file" accept="image/*" className="photo-upload-input" onChange={sendImage} />
+        </label>
         <input
           className="chat-input"
           type="text"

@@ -1,4 +1,4 @@
-const CACHE = 'pushup-v7';
+const CACHE = 'pushup-v8';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', event => {
@@ -20,7 +20,6 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   if (!event.request.url.startsWith(self.location.origin)) return;
-  // Network first for HTML - always get fresh app
   if (event.request.url.endsWith('/') || event.request.url.includes('index.html')) {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request))
@@ -38,6 +37,11 @@ self.addEventListener('fetch', event => {
       })
     )
   );
+});
+
+// User tapped banner - now activate
+self.addEventListener('message', event => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('push', event => {

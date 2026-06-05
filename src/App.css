@@ -708,3 +708,36 @@ body {
   letter-spacing: 0.01em; position: sticky; top: 88px; z-index: 98;
 }
 .update-banner:hover { opacity: 0.95; }
+
+/* Chat edit and context menu */
+.chat-menu-overlay { position: fixed; inset: 0; z-index: 150; }
+.chat-context-menu {
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm); overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  margin-top: 4px; z-index: 160; position: relative;
+}
+.chat-context-menu button {
+  padding: 0.6rem 1rem; font-size: 14px; text-align: left;
+  background: none; border: none; cursor: pointer; color: var(--text);
+  border-bottom: 0.5px solid var(--border);
+}
+.chat-context-menu button:last-child { border-bottom: none; color: var(--text3); }
+.chat-context-menu button:hover { background: var(--surface2); }
+.chat-edit-wrap { display: flex; flex-direction: column; gap: 6px; }
+.chat-edit-input {
+  background: rgba(255,255,255,0.2); border: none; border-radius: 8px;
+  padding: 4px 8px; font-size: 15px; color: #fff; width: 100%;
+}
+.chat-edit-actions { display: flex; gap: 6px; justify-content: flex-end; }
+.chat-edit-cancel {
+  background: rgba(255,255,255,0.2); border: none; border-radius: 6px;
+  padding: 4px 10px; font-size: 12px; color: #fff; cursor: pointer;
+}
+.chat-edit-save {
+  background: #fff; border: none; border-radius: 6px;
+  padding: 4px 10px; font-size: 12px; color: var(--teal-dark);
+  font-weight: 700; cursor: pointer;
+}
+.chat-edited { font-size: 10px; opacity: 0.7; }

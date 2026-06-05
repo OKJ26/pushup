@@ -71,7 +71,7 @@ export default function RemindTab({ challenge }) {
       <div className="notify-row">
         <div className="notify-info">
           <div className="notify-title">Morning reminder</div>
-          <div className="notify-sub">Daily pushup nudge at 7am</div>
+          <div className="notify-sub">Daily pushup nudge at 8am</div>
         </div>
         <Toggle on={morning} onToggle={() => { setMorning(!morning); save('remind-morning', !morning); }} />
       </div>

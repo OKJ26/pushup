@@ -1,9 +1,9 @@
-const CACHE = 'pushup-v4';
+const CACHE = 'pushup-v5';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-  self.skipWaiting();
+  // Don't skipWaiting - wait for user to confirm update
 });
 
 self.addEventListener('activate', (e) => {
@@ -45,4 +45,9 @@ self.addEventListener('push', (e) => {
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
   e.waitUntil(clients.openWindow(e.notification.data?.url || '/'));
+});
+
+// Tell clients when a new version is waiting
+self.addEventListener('message', (e) => {
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
 });

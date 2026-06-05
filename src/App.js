@@ -14,7 +14,7 @@ const DEFAULT_PHOTOS = {
   henry: '/henry.jpg',
 };
 
-const PINS = { jeremy: '1111', grant: '0811', henry: '1212' };
+const PINS = { jeremy: '1234', grant: '5678' };
 
 function Avatar({ playerId, size = '', className = '' }) {
   const [custom, setCustom] = useState(() => localStorage.getItem(`photo-${playerId}`) || null);
@@ -141,7 +141,26 @@ export default function App() {
   const [tab, setTab] = useState('today');
   const [unreadChat, setUnreadChat] = useState(0);
   const [lastSeen, setLastSeen] = useState(() => parseInt(localStorage.getItem('last-seen-chat') || '0'));
+  const [updateReady, setUpdateReady] = useState(false);
+  const [swReg, setSwReg] = useState(null);
   const challenge = useChallenge(playerId);
+
+  useEffect(() => {
+    const handler = (e) => {
+      setUpdateReady(true);
+      setSwReg(e.detail);
+    };
+    window.addEventListener('swUpdateAvailable', handler);
+    return () => window.removeEventListener('swUpdateAvailable', handler);
+  }, []);
+
+  const handleUpdate = () => {
+    if (swReg && swReg.waiting) {
+      swReg.waiting.postMessage('SKIP_WAITING');
+    } else {
+      window.location.reload();
+    }
+  };
 
   useEffect(() => {
     if (!playerId) return;
@@ -193,6 +212,11 @@ export default function App() {
         <h1>Morning Pushups 💪</h1>
       </header>
 
+      {updateReady && (
+        <div className="update-banner" onClick={handleUpdate}>
+          🆕 New version available — tap to update
+        </div>
+      )}
       <nav className="tabs">
         {tabs.map((t) => (
           <button key={t.id} className={`tab ${tab === t.id ? 'active' : ''}`} onClick={() => handleTab(t.id)}>
